@@ -18,8 +18,29 @@ def index():
 if __name__ == "__main__":
     app.run(debug=True)
 
+#get metoda za dohvacanje svih proizvoda u cartu
+@app.route('/app/cart', methods=['GET'])
+def data():
+    allData = db['cart'].find()
+    dataJson = []
+    for data in allData:
+        id = data['_id']
+        name = data['name']
+        price = data['price']
+        img = data['img']
+        quantity = data['quantity']
+        dataDict = {
+            'id': str(id),
+            'name': name,
+            'price': price,
+            'img': img,
+            'quantity': quantity
+        }
+        dataJson.append(dataDict)
+    return jsonify(dataJson)
+
 #get metoda za dohvacanje svih prozivoda
-@app.route('/items', methods=['GET']) 
+@app.route('/items', methods=['GET'])
 def data2():
     allData = db['itemFood'].find() 
     dataJson = []
@@ -40,3 +61,4 @@ def data2():
         }
         dataJson.append(dataDict) 
     print(dataJson)
+    return jsonify(dataJson)
