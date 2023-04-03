@@ -18,7 +18,7 @@ def index():
 if __name__ == "__main__":
     app.run(debug=True)
 
-#get metoda za dohvacanje svih proizvoda u cartu
+#Get metoda za dohvacanje svih proizvoda u cartu
 @app.route('/app/cart', methods=['GET'])
 def data():
     allData = db['cart'].find()
@@ -39,12 +39,100 @@ def data():
         dataJson.append(dataDict)
     return jsonify(dataJson)
 
-#get metoda za dohvacanje svih prozivoda
-@app.route('/items', methods=['GET'])
+#Post metoda za dodavanje prozivoda u cart
+@app.route('/app/cart/dodaj', methods=['POST'])
+def adddata():
+
+        allData = db['cart'].find()
+        body = request.get_json()
+        print(body)
+        id = body.get('_id')
+        name = body.get('name')
+        price = body.get('price')
+        img = body.get('img')
+        quantity = int(body.get('quantity'))
+        category = body.get('category')
+        flag = False
+
+        for artikl in allData:
+            print(artikl)
+            if artikl['name'] == name:
+
+                novaKolicina = int(artikl['quantity']) + 1
+                db['cart'].delete_one({ "_id" : artikl['_id'] })
+                db['cart'].insert_one({
+                '_id': artikl['_id'],
+                'name': name,
+                'price': price,
+                'img': img,
+                'quantity': novaKolicina,
+                'category': category
+                })
+                flag = True
+
+                return jsonify({
+                        'status': 'Data posted to MongoDB!',
+                    })
+
+        if flag == False:
+            db['cart'].insert_one({
+                        'name': name,
+                        'price': price,
+                        'img': img,
+                        'quantity': quantity,
+                        'category': category
+                    })
+            return jsonify({
+                        'status': 'Data posted to MongoDB!',
+                    })
+        
+        
+#Post metoda za brisanje proizvoda u cart-u
+@app.route('/app/cart/umanji', methods=['POST'])
+def umanjiKolicinu():
+    
+        allData = db['cart'].find()
+        body = request.get_json()
+        print(body)
+        id = body.get('id')
+        name = body.get('name')
+        price = body.get('price')
+        img = body.get('img')
+        quantity = int(body.get('quantity'))
+        category = body.get('category')
+
+        print(id)
+
+        for artikl in allData:
+            if artikl['name'] == name:
+                if quantity == 1:
+                    db['cart'].delete_one({ "_id" : artikl['_id'] })
+                    return jsonify({
+                                'status': 'Data posted to MongoDB!',
+                            })
+                else:
+                    novaKolicina = int(artikl['quantity']) - 1
+                    print(novaKolicina)
+                    db['cart'].delete_one({ "_id" : artikl['_id'] })
+                    db['cart'].insert_one({
+                        '_id': artikl['_id'],
+                        'name': name,
+                        'price': price,
+                        'img': img,
+                        'quantity': novaKolicina,
+                        'category': category
+                        })
+
+                    return jsonify({
+                                'status': 'Data posted to MongoDB!',
+                            })
+
+#Get metoda za dohvacanje svih prozivoda
+@app.route('/items', methods=['GET']) 
 def data2():
     allData = db['itemFood'].find() 
     dataJson = []
-    for data in allData: 
+    for data in allData:
         id = data['_id']
         name = data['name']
         price = data['price']
