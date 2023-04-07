@@ -124,8 +124,8 @@ def umanjiKolicinu():
                         })
 
                     return jsonify({
-                                'status': 'Data posted to MongoDB!',
-                            })
+                        'status': 'Data posted to MongoDB!',
+                    })
 
 #Get metoda za dohvacanje svih prozivoda
 @app.route('/items', methods=['GET']) 
